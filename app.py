@@ -5,6 +5,11 @@ from geopy.distance import geodesic
 import joblib
 app = Flask(__name__)
 
+model = joblib.load('final_model.pkl')
+scaler = joblib.load('scaler.pkl')
+
+
+
 @app.route("/")
 def index():
     return render_template('index.html',fare = '$0.0')
@@ -30,13 +35,13 @@ def predict():
 
         distance = geodesic((pickup_latitude,pickup_longitude),(dropoff_latitude,dropoff_longitude)).miles
 
-        X = [[pickup_longitude,pickup_latitude,dropoff_longitude,dropoff_latitude,passenger_count,distance,year,month,day,hour,minute,second]]
+        X = scaler.transform([[pickup_longitude,pickup_latitude,dropoff_longitude,dropoff_latitude,passenger_count,distance,year,month,day,hour,minute,second]])
 
-        model = joblib.load('lr.pkl')
+        
 
         
        
-        return render_template('index.html',fare =f'${round(model.predict(X)[0],2)*passenger_count}' )
+        return render_template('index.html',fare =f'${round(model.predict(X)[0],2)}' )
     return render_template('index.html',fare =f'$0.0' )
 
 
